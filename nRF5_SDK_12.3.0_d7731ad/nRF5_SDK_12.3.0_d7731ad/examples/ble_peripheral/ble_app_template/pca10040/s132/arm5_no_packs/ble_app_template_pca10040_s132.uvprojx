@@ -389,6 +389,11 @@
               <FileType>5</FileType>
               <FilePath>..\config\sdk_config.h</FilePath>
             </File>
+            <File>
+              <FileName>cmlib.lib</FileName>
+              <FileType>4</FileType>
+              <FilePath>..\..\..\cmlib.lib</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -3265,6 +3270,11 @@
               <FileName>sdk_config.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\config\sdk_config.h</FilePath>
+            </File>
+            <File>
+              <FileName>cmlib.lib</FileName>
+              <FileType>4</FileType>
+              <FilePath>..\..\..\cmlib.lib</FilePath>
             </File>
           </Files>
         </Group>

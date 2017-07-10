@@ -86,6 +86,8 @@
 #include "nrf_log_ctrl.h"
 #include "ble_lbs.h"
 #include "app_uart.h"
+#include "at_common.h"
+
 
 #define IS_SRVC_CHANGED_CHARACT_PRESENT 1                                           /**< Include or not the service_changed characteristic. if not enabled, the server's database cannot be changed for the lifetime of the device*/
 
@@ -344,7 +346,43 @@ static void gap_params_init(void)
 	 
 static void led_write_handler(ble_lbs_t * p_lbs, uint8_t led_state)
 {
-	NRF_LOG_INFO("%d\r\n",led_state);
+	switch(led_state) {
+		case 0x01:
+			nrf_gpio_pin_write(MOTOR_PIN2, 1);  //打开电机
+			break;
+		case 0x02:
+			nrf_gpio_pin_write(MOTOR_PIN2, 0);  //关机电机
+			break;
+		case 0x03:
+			nrf_gpio_pin_write(BUZZ_PIN, 1);   //打开蜂蜜器
+			break;
+		case 0x04:
+			nrf_gpio_pin_write(BUZZ_PIN, 0);   //关闭蜂蜜器
+			break;
+		case 0x05:
+			nrf_gpio_pin_write(GPS_PIN, 1);     //打开GPS
+			break;
+		case 0x06:
+			nrf_gpio_pin_write(GPS_PIN, 0);     //关闭GPS
+			break;
+		case 0x07:
+			nrf_gpio_pin_write(BB_EN_PIN, 0);   //打开3G
+			break;
+		case 0x08:
+			nrf_gpio_pin_write(BB_EN_PIN, 1);   //关闭3G
+			break;
+		case 0x09:
+			AT_Test();
+			break;
+		case 0x10:	
+			break;
+		case 0x11:												
+			break;
+		case 0x12:
+			break;
+		default:
+			break;
+	}
 }
 
 /**@brief Function for initializing services that will be used by the application.
@@ -817,8 +855,8 @@ static void uart_event_handle(app_uart_evt_t * p_event)
 	switch (p_event->evt_type)
     {		
         case APP_UART_DATA_READY:		
-						printf("hello world\r\n");
-						NRF_LOG_INFO("MXN005 started\r\n");
+						NRF_LOG_INFO("get uart data\r\n");
+						PutUARTByte("xuzoubin");
             break;
 
         case APP_UART_COMMUNICATION_ERROR:
@@ -859,6 +897,21 @@ static void uart_init(void)
     APP_ERROR_CHECK(err_code);
 }
 
+void gpio_init(void)
+{
+	nrf_gpio_cfg_output(MOTOR_PIN1);
+	nrf_gpio_cfg_output(MOTOR_PIN2);
+	nrf_gpio_cfg_output(GPS_PIN);
+	nrf_gpio_cfg_output(BUZZ_PIN);
+	nrf_gpio_cfg_output(BB_EN_PIN);
+	nrf_gpio_pin_write(MOTOR_PIN1, 0);
+	nrf_gpio_pin_write(MOTOR_PIN2, 0);
+	nrf_gpio_pin_write(GPS_PIN, 0);
+	nrf_gpio_pin_write(BUZZ_PIN, 0);
+	nrf_gpio_pin_write(BB_EN_PIN, 1);
+
+}
+
 
 /**@brief Function for application main entry.
  */
@@ -872,6 +925,7 @@ int main(void)
     APP_ERROR_CHECK(err_code);
     timers_init();
 		uart_init();
+		gpio_init();
     buttons_leds_init(&erase_bonds);
     ble_stack_init();
     peer_manager_init(erase_bonds);
