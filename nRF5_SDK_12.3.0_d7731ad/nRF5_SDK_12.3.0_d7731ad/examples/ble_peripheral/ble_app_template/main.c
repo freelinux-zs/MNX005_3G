@@ -867,8 +867,8 @@ void repeat(CallBackFun function, uint8_t *para)
 }
 
 uint8_t* get_uart_data(uint8_t* a)
-{
-    printf("%s\r\n",(const char *)a);
+{		
+		NRF_LOG_INFO("%s\r\n",(uint32_t )a);	
 		return a;
 }
 
@@ -877,6 +877,7 @@ static void uart_event_handle(app_uart_evt_t * p_event)
 {
 	static uint8_t data_array[256];
 	static uint8_t index = 0;
+	static uint8_t p_data[256] = {0};
 	
 	switch (p_event->evt_type)
     {		
@@ -884,9 +885,9 @@ static void uart_event_handle(app_uart_evt_t * p_event)
 					UNUSED_VARIABLE(app_uart_get(&data_array[index]));
 					index++;					
 					if ((data_array[index - 1] == '\n') || (index >= 255))
-					{
-						NRF_LOG_INFO("get uart data %s\r\n",(uint32_t)data_array);
-						repeat(get_uart_data,data_array);
+					{			
+						memcpy(p_data,data_array,sizeof(data_array));
+						repeat(get_uart_data,p_data);
 						memset(data_array, 0, sizeof(data_array));
 						index = 0;				
 					}
@@ -920,7 +921,7 @@ static void uart_init(void)
         CTS_PIN_NUMBER,
         APP_UART_FLOW_CONTROL_DISABLED,
         false,
-        UART_BAUDRATE_BAUDRATE_Baud115200
+        UART_BAUDRATE_BAUDRATE_Baud9600  //UART_BAUDRATE_BAUDRATE_Baud115200 UART_BAUDRATE_BAUDRATE_Baud9600
     };
 
     APP_UART_FIFO_INIT( &comm_params,
@@ -959,7 +960,7 @@ int main(void)
     err_code = NRF_LOG_INIT(NULL);
     APP_ERROR_CHECK(err_code);
     timers_init();
-		uart_init();
+		//uart_init();
 		gpio_init();
     buttons_leds_init(&erase_bonds);
     ble_stack_init();
