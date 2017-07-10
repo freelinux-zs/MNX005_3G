@@ -81,7 +81,7 @@
 #include "ble_advertising.h"
 #include "ble_conn_state.h"
 
-#define NRF_LOG_MODULE_NAME "APP"
+#define NRF_LOG_MODULE_NAME "MXN005"
 #include "nrf_log.h"
 #include "nrf_log_ctrl.h"
 #include "ble_lbs.h"
@@ -849,15 +849,23 @@ static void advertising_start(void)
     APP_ERROR_CHECK(err_code);
 }
 
+
 static void uart_event_handle(app_uart_evt_t * p_event)
 {
-		
+	static uint8_t data_array[256];
+	static uint8_t index = 0;
+	
 	switch (p_event->evt_type)
     {		
-        case APP_UART_DATA_READY:		
-						NRF_LOG_INFO("get uart data\r\n");
-						PutUARTByte("xuzoubin");
-            break;
+        case APP_UART_DATA_READY:	
+					UNUSED_VARIABLE(app_uart_get(&data_array[index]));
+					index++;					
+					if ((data_array[index - 1] == '\n') || (index >= 255))
+					{
+						NRF_LOG_INFO("get uart data %s\r\n",(uint32_t)data_array);
+						index = 0;				
+					}
+          break;
 
         case APP_UART_COMMUNICATION_ERROR:
             APP_ERROR_HANDLER(p_event->data.error_communication);

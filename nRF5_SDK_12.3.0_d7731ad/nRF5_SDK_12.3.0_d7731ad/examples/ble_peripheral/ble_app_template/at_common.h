@@ -4,6 +4,9 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "nrf.h"
+#include "nrf_peripherals.h"
+#include "nrf_assert.h"
 
 #ifdef __cplusplus
 extern "C" {
