@@ -140,7 +140,9 @@ static ble_uuid_t 											adv_uuids[] = {{LBS_UUID_SERVICE, LBS_SERVICE_UUID_
 #define UART_RX_BUF_SIZE                256                                         /**< UART RX buffer size. */
 
 static void advertising_start(void);
+void uart_init(void);
 
+typedef uint8_t* (*CallBackFun)(uint8_t *);
 /**@brief Callback function for asserts in the SoftDevice.
  *
  * @details This function will be called in case of an assert in the SoftDevice.
@@ -344,6 +346,13 @@ static void gap_params_init(void)
     }
    }*/
 	 
+void chang_uart_baudrate(void)
+{
+	NRF_UART0-> BAUDRATE =(UART_BAUDRATE_BAUDRATE_Baud9600 << UART_BAUDRATE_BAUDRATE_Pos);
+}
+
+
+
 static void led_write_handler(ble_lbs_t * p_lbs, uint8_t led_state)
 {
 	switch(led_state) {
@@ -375,10 +384,13 @@ static void led_write_handler(ble_lbs_t * p_lbs, uint8_t led_state)
 			AT_Test();
 			break;
 		case 0x10:	
+			chang_uart_baudrate(); //更改波特率为9600
 			break;
-		case 0x11:												
+		case 0x11:		
+			uart_init();			
 			break;
 		case 0x12:
+			app_uart_close();
 			break;
 		default:
 			break;
@@ -849,6 +861,17 @@ static void advertising_start(void)
     APP_ERROR_CHECK(err_code);
 }
 
+void repeat(CallBackFun function, uint8_t *para)
+{
+		function(para);
+}
+
+uint8_t* get_uart_data(uint8_t* a)
+{
+    printf("%s\r\n",(const char *)a);
+		return a;
+}
+
 
 static void uart_event_handle(app_uart_evt_t * p_event)
 {
@@ -863,6 +886,8 @@ static void uart_event_handle(app_uart_evt_t * p_event)
 					if ((data_array[index - 1] == '\n') || (index >= 255))
 					{
 						NRF_LOG_INFO("get uart data %s\r\n",(uint32_t)data_array);
+						repeat(get_uart_data,data_array);
+						memset(data_array, 0, sizeof(data_array));
 						index = 0;				
 					}
           break;
@@ -879,6 +904,8 @@ static void uart_event_handle(app_uart_evt_t * p_event)
             break;
     }
 }
+
+
 /**@brief  Function for initializing the UART module.
  */
 /**@snippet [UART Initialization] */

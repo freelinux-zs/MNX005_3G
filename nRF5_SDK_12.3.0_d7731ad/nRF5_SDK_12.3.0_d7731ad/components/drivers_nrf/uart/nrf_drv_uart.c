@@ -110,7 +110,8 @@ __STATIC_INLINE void apply_config(nrf_drv_uart_t const * p_instance, nrf_drv_uar
     }
     if (p_config->pselrxd != NRF_UART_PSEL_DISCONNECTED)
     {
-        nrf_gpio_cfg_input(p_config->pselrxd, NRF_GPIO_PIN_NOPULL);
+        //nrf_gpio_cfg_input(p_config->pselrxd, NRF_GPIO_PIN_NOPULL);
+				nrf_gpio_cfg_input(p_config->pselrxd, NRF_GPIO_PIN_PULLUP);
     }
 
     CODE_FOR_UARTE
