@@ -140,7 +140,8 @@ static ble_uuid_t 											adv_uuids[] = {{LBS_UUID_SERVICE, LBS_SERVICE_UUID_
 #define UART_RX_BUF_SIZE                256                                         /**< UART RX buffer size. */
 
 static void advertising_start(void);
-void uart_init(void);
+static void	uart_init_gps(void);			
+static void	uart_init_3g(void);
 
 typedef uint8_t* (*CallBackFun)(uint8_t *);
 /**@brief Callback function for asserts in the SoftDevice.
@@ -381,16 +382,22 @@ static void led_write_handler(ble_lbs_t * p_lbs, uint8_t led_state)
 			nrf_gpio_pin_write(BB_EN_PIN, 1);   //关闭3G
 			break;
 		case 0x09:
-			AT_Test();
+			AT_Test();													//AT命令测试 
 			break;
 		case 0x10:	
 			chang_uart_baudrate(); //更改波特率为9600
 			break;
 		case 0x11:		
-			uart_init();			
+			uart_init_gps();			  //打开UART 波特率为9600
 			break;
 		case 0x12:
-			app_uart_close();
+			uart_init_3g();    	//打开UART 波特率为115200
+			break;
+		case 0x13:
+			app_uart_close();         //关闭UART
+			break;
+		case 0x14:
+			printf("atd112;");
 			break;
 		default:
 			break;
@@ -910,18 +917,41 @@ static void uart_event_handle(app_uart_evt_t * p_event)
 /**@brief  Function for initializing the UART module.
  */
 /**@snippet [UART Initialization] */
-static void uart_init(void)
+static void uart_init_gps(void)
 {
     uint32_t                     err_code;
     const app_uart_comm_params_t comm_params =
     {
-        RX_PIN_NUMBER,
-        TX_PIN_NUMBER,
+        RX_PIN_NUMBER_GPS,
+        TX_PIN_NUMBER_GPS,
         RTS_PIN_NUMBER,
         CTS_PIN_NUMBER,
         APP_UART_FLOW_CONTROL_DISABLED,
         false,
         UART_BAUDRATE_BAUDRATE_Baud9600  //UART_BAUDRATE_BAUDRATE_Baud115200 UART_BAUDRATE_BAUDRATE_Baud9600
+    };
+
+    APP_UART_FIFO_INIT( &comm_params,
+                       UART_RX_BUF_SIZE,
+                       UART_TX_BUF_SIZE,
+                       uart_event_handle,
+                       APP_IRQ_PRIORITY_LOWEST,
+                       err_code);
+    APP_ERROR_CHECK(err_code);
+}
+
+static void uart_init_3g(void)
+{
+    uint32_t                     err_code;
+    const app_uart_comm_params_t comm_params =
+    {
+        RX_PIN_NUMBER_3G,
+        TX_PIN_NUMBER_3G,
+        RTS_PIN_NUMBER,
+        CTS_PIN_NUMBER,
+        APP_UART_FLOW_CONTROL_DISABLED,
+        false,
+        UART_BAUDRATE_BAUDRATE_Baud115200  //UART_BAUDRATE_BAUDRATE_Baud115200 UART_BAUDRATE_BAUDRATE_Baud9600
     };
 
     APP_UART_FIFO_INIT( &comm_params,

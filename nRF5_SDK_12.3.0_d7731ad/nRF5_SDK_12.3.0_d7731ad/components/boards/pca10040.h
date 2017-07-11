@@ -95,8 +95,10 @@ extern "C" {
 //#define BSP_BUTTON_2   BUTTON_3
 //#define BSP_BUTTON_3   BUTTON_4
 
-#define RX_PIN_NUMBER  28
-#define TX_PIN_NUMBER  27
+#define RX_PIN_NUMBER_3G  28
+#define TX_PIN_NUMBER_3G  27
+#define RX_PIN_NUMBER_GPS  17
+#define TX_PIN_NUMBER_GPS  19
 #define CTS_PIN_NUMBER 0xff
 #define RTS_PIN_NUMBER 0xff
 #define HWFC           false
