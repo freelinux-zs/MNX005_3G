@@ -87,6 +87,7 @@
 #include "ble_lbs.h"
 #include "app_uart.h"
 #include "at_common.h"
+#include "nrf_delay.h"
 
 
 #define IS_SRVC_CHANGED_CHARACT_PRESENT 1                                           /**< Include or not the service_changed characteristic. if not enabled, the server's database cannot be changed for the lifetime of the device*/
@@ -103,7 +104,7 @@
 #define DEVICE_NAME                     "MXN005"                                    /**< Name of device. Will be included in the advertising data. */
 #define MANUFACTURER_NAME               "NordicSemiconductor"                       /**< Manufacturer. Will be passed to Device Information Service. */
 #define LBS_SERVICE_UUID_TYPE           BLE_UUID_TYPE_BLE                  /**< UUID type for the Nordic UART Service (vendor specific). */
-#define APP_ADV_INTERVAL                64                                         /**< The advertising interval (in units of 0.625 ms. This value corresponds to 187.5 ms). */
+#define APP_ADV_INTERVAL                640                                         /**< The advertising interval (in units of 0.625 ms. This value corresponds to 187.5 ms). */
 #define APP_ADV_TIMEOUT_IN_SECONDS      0 //180                                         /**< The advertising timeout in units of seconds. */
 
 #define APP_TIMER_PRESCALER             0                                           /**< Value of the RTC1 PRESCALER register. */
@@ -142,6 +143,7 @@ static ble_uuid_t 											adv_uuids[] = {{LBS_UUID_SERVICE, LBS_SERVICE_UUID_
 static void advertising_start(void);
 static void	uart_init_gps(void);			
 static void	uart_init_3g(void);
+static void uart_enable(uint8_t reg);
 
 typedef uint8_t* (*CallBackFun)(uint8_t *);
 /**@brief Callback function for asserts in the SoftDevice.
@@ -387,17 +389,27 @@ static void led_write_handler(ble_lbs_t * p_lbs, uint8_t led_state)
 		case 0x10:	
 			chang_uart_baudrate(); //更改波特率为9600
 			break;
-		case 0x11:		
+		case 0x11:
+			nrf_gpio_pin_write(BB_EN_PIN, 0);
 			uart_init_gps();			  //打开UART 波特率为9600
 			break;
 		case 0x12:
+			nrf_gpio_pin_write(BB_EN_PIN, 0);
+			nrf_delay_ms(1000);
 			uart_init_3g();    	//打开UART 波特率为115200
 			break;
 		case 0x13:
 			app_uart_close();         //关闭UART
+			nrf_gpio_pin_write(BB_EN_PIN, 1);
 			break;
 		case 0x14:
-			printf("atd112;");
+			printf("ati\r\n");
+			break;
+		case 0x15:
+			printf("at+creg?\r\n");
+			break;
+		case 0x16:
+			uart_enable(0);
 			break;
 		default:
 			break;
@@ -880,6 +892,34 @@ uint8_t* get_uart_data(uint8_t* a)
 }
 
 
+static void uart_enable(uint8_t reg)
+{
+    // Configure UART0 pins.
+	if(reg == 1){
+    nrf_gpio_cfg_output(TX_PIN_NUMBER_GPS);
+    nrf_gpio_cfg_input(RX_PIN_NUMBER_GPS, NRF_GPIO_PIN_NOPULL);
+
+    NRF_UART0->PSELTXD       = TX_PIN_NUMBER_GPS;
+    NRF_UART0->PSELRXD       = RX_PIN_NUMBER_GPS;
+    NRF_UART0->BAUDRATE      = UART_BAUDRATE_BAUDRATE_Baud9600;
+
+    // Clean out possible events from earlier operations
+    NRF_UART0->EVENTS_RXDRDY = 0;
+    NRF_UART0->EVENTS_TXDRDY = 0;
+    NRF_UART0->EVENTS_ERROR  = 0;
+
+    // Activate UART.
+    NRF_UART0->ENABLE        = UART_ENABLE_ENABLE_Enabled;
+    NRF_UART0->INTENSET      = 0;
+    NRF_UART0->TASKS_STARTTX = 1;
+    NRF_UART0->TASKS_STARTRX = 1;
+	}else{
+    NRF_UART0->INTENSET      = 0;
+    NRF_UART0->TASKS_STOPTX = 1;
+    NRF_UART0->TASKS_STOPRX = 1;
+		NRF_UART0->ENABLE        = UART_ENABLE_ENABLE_Disabled;
+	}
+}
 static void uart_event_handle(app_uart_evt_t * p_event)
 {
 	static uint8_t data_array[256];
@@ -888,6 +928,7 @@ static void uart_event_handle(app_uart_evt_t * p_event)
 	
 	switch (p_event->evt_type)
     {		
+			#if 1
         case APP_UART_DATA_READY:	
 					UNUSED_VARIABLE(app_uart_get(&data_array[index]));
 					index++;					
@@ -899,7 +940,7 @@ static void uart_event_handle(app_uart_evt_t * p_event)
 						index = 0;				
 					}
           break;
-
+			#endif
         case APP_UART_COMMUNICATION_ERROR:
             APP_ERROR_HANDLER(p_event->data.error_communication);
             break;
@@ -992,6 +1033,9 @@ int main(void)
     timers_init();
 		//uart_init();
 		gpio_init();
+		//nrf_gpio_pin_write(BB_EN_PIN, 0);   //打开3G
+		//uart_init_3g();
+	
     buttons_leds_init(&erase_bonds);
     ble_stack_init();
     peer_manager_init(erase_bonds);

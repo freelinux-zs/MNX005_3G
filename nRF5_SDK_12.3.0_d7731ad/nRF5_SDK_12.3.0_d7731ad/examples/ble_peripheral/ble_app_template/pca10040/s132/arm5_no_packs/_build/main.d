@@ -80,3 +80,4 @@
 .\_build\main.o: ..\..\..\..\..\..\components\ble\ble_services\ble_lbs\ble_lbs.h
 .\_build\main.o: ..\..\..\..\..\..\components\libraries\uart\app_uart.h
 .\_build\main.o: ..\..\..\at_common.h
+.\_build\main.o: ..\..\..\..\..\..\components\drivers_nrf\delay\nrf_delay.h
