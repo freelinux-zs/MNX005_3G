@@ -1,4 +1,4 @@
-#ifndef AT_COMMAND_H__
+#if 0 //ndef AT_COMMAND_H__
 #define AT_COMMAND_H__
 
 #include <stdio.h>

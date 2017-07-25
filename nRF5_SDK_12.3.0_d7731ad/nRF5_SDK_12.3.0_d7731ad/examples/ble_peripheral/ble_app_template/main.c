@@ -88,7 +88,7 @@
 #include "app_uart.h"
 #include "at_common.h"
 #include "nrf_delay.h"
-//#include "nrf_drv_twi.h"
+#include "nrf_drv_twi.h"
 
 
 #define IS_SRVC_CHANGED_CHARACT_PRESENT 1                                           /**< Include or not the service_changed characteristic. if not enabled, the server's database cannot be changed for the lifetime of the device*/
@@ -386,7 +386,7 @@ static void led_write_handler(ble_lbs_t * p_lbs, uint8_t led_state)
 			nrf_gpio_pin_write(BB_EN_PIN, 1);   //关闭3G
 			break;
 		case 0x09:
-			AT_Test();													//AT命令测试 
+			//AT_Test();													//AT命令测试 
 			break;
 		case 0x10:	
 			chang_uart_baudrate(); //更改波特率为9600
@@ -1035,9 +1035,8 @@ int main(void)
     timers_init();
 		//uart_init();
 		gpio_init();
-		uint32_t sensor_id = bma2x2_init();
-		NRF_LOG_INFO("Sensor ID = %d\r\n",sensor_id);
-	
+		//uint32_t sensor_id = bma2x2_init();
+		//NRF_LOG_INFO("Sensor ID = %d\r\n",sensor_id);
 		//nrf_gpio_pin_write(BB_EN_PIN, 0);   //打开3G
 		//uart_init_3g();
 	

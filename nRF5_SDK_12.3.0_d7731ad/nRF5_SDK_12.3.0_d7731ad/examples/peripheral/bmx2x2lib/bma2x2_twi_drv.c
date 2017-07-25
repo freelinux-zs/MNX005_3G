@@ -149,10 +149,12 @@ uint32_t nrf_drv_bma_read_registers(uint8_t reg, uint8_t * p_data, uint32_t leng
 
 uint32_t bma2x2_init(void)
 {
+
 	uint32_t err_code;
 	uint8_t id =0;
 	
 	err_code = bma2x2_twi_init();
+	#if 0
 	if(err_code != NRF_SUCCESS) return err_code;
 	
 	for(uint8_t i = 0; i < 3; i++){
@@ -160,7 +162,7 @@ uint32_t bma2x2_init(void)
 		if(id == 0xfa)
 			break;
 	}
-	
+	#endif
 	return id;
 }
 

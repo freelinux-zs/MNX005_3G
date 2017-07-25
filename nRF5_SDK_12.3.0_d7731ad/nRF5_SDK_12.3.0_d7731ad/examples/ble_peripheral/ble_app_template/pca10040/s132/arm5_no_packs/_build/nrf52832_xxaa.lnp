@@ -1,7 +1,5 @@
 --cpu=Cortex-M4.fp
 ".\_build\main.o"
-"..\..\..\cmlib.lib"
-"..\..\..\bma2x2.lib"
 ".\_build\boards.o"
 ".\_build\bsp.o"
 ".\_build\bsp_btn_ble.o"
@@ -27,6 +25,7 @@
 ".\_build\nrf_drv_common.o"
 ".\_build\nrf_drv_gpiote.o"
 ".\_build\nrf_drv_uart.o"
+".\_build\nrf_drv_twi.o"
 ".\_build\app_button.o"
 ".\_build\app_error.o"
 ".\_build\app_error_weak.o"

@@ -394,6 +394,11 @@
               <FileType>4</FileType>
               <FilePath>..\..\..\cmlib.lib</FilePath>
             </File>
+            <File>
+              <FileName>bma2x2.lib</FileName>
+              <FileType>4</FileType>
+              <FilePath>..\..\..\bma2x2.lib</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -3275,6 +3280,11 @@
               <FileName>cmlib.lib</FileName>
               <FileType>4</FileType>
               <FilePath>..\..\..\cmlib.lib</FilePath>
+            </File>
+            <File>
+              <FileName>bma2x2.lib</FileName>
+              <FileType>4</FileType>
+              <FilePath>..\..\..\bma2x2.lib</FilePath>
             </File>
           </Files>
         </Group>

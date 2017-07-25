@@ -81,3 +81,6 @@
 .\_build\main.o: ..\..\..\..\..\..\components\libraries\uart\app_uart.h
 .\_build\main.o: ..\..\..\at_common.h
 .\_build\main.o: ..\..\..\..\..\..\components\drivers_nrf\delay\nrf_delay.h
+.\_build\main.o: ..\..\..\..\..\..\components\drivers_nrf\twi_master\nrf_drv_twi.h
+.\_build\main.o: ..\..\..\..\..\..\components\drivers_nrf\hal\nrf_twi.h
+.\_build\main.o: ..\..\..\..\..\..\components\drivers_nrf\hal\nrf_twim.h

@@ -1,2 +1,2 @@
-#define BMA2X2_REG_WHO_AM_I           0x75  //117
+#define BMA2X2_REG_WHO_AM_I           0x00 
 
