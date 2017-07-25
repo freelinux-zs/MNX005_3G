@@ -29,9 +29,11 @@ Project File Date:  07/22/2017
 Build target 'nrf52832_xxaa'
 compiling main.c...
 linking...
-Program Size: Code=36788 RO-data=1672 RW-data=328 ZI-data=14736  
-FromELF: creating hex file...
-".\_build\nrf52832_xxaa.axf" - 0 Error(s), 0 Warning(s).
+.\_build\nrf52832_xxaa.axf: Error: L6218E: Undefined symbol nrf_drv_common_per_res_acquire (referred from nrf_drv_twi.o).
+.\_build\nrf52832_xxaa.axf: Error: L6218E: Undefined symbol nrf_drv_common_per_res_release (referred from nrf_drv_twi.o).
+Not enough information to list image symbols.
+Finished: 1 information, 0 warning and 2 error messages.
+".\_build\nrf52832_xxaa.axf" - 2 Error(s), 0 Warning(s).
 
 <h2>Software Packages used:</h2>
 
@@ -60,6 +62,7 @@ Package Vendor: NordicSemiconductor
       Source file:   Device\Source\arm\arm_startup_nrf52.s
       Source file:   Device\Source\system_nrf52.c
       Include file:  Device\Include\system_nrf52.h
+Target not created.
 Build Time Elapsed:  00:00:05
 </pre>
 </body>

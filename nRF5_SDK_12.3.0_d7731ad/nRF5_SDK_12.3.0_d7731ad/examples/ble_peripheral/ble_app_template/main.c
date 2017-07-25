@@ -88,6 +88,7 @@
 #include "app_uart.h"
 #include "at_common.h"
 #include "nrf_delay.h"
+//#include "nrf_drv_twi.h"
 
 
 #define IS_SRVC_CHANGED_CHARACT_PRESENT 1                                           /**< Include or not the service_changed characteristic. if not enabled, the server's database cannot be changed for the lifetime of the device*/
@@ -144,6 +145,7 @@ static void advertising_start(void);
 static void	uart_init_gps(void);			
 static void	uart_init_3g(void);
 static void uart_enable(uint8_t reg);
+uint32_t bma2x2_init(void);
 
 typedef uint8_t* (*CallBackFun)(uint8_t *);
 /**@brief Callback function for asserts in the SoftDevice.
@@ -1033,6 +1035,9 @@ int main(void)
     timers_init();
 		//uart_init();
 		gpio_init();
+		uint32_t sensor_id = bma2x2_init();
+		NRF_LOG_INFO("Sensor ID = %d\r\n",sensor_id);
+	
 		//nrf_gpio_pin_write(BB_EN_PIN, 0);   //´ò¿ª3G
 		//uart_init_3g();
 	
