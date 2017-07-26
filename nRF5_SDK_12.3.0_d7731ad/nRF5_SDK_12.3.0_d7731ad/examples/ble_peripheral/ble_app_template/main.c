@@ -144,7 +144,6 @@ static ble_uuid_t 											adv_uuids[] = {{LBS_UUID_SERVICE, LBS_SERVICE_UUID_
 static void advertising_start(void);
 static void	uart_init_gps(void);			
 static void	uart_init_3g(void);
-static void uart_enable(uint8_t reg);
 int8_t sensor_type_auto_maching_init(void);
 int8_t open_sensor_monitor(uint8_t level);
 
@@ -362,47 +361,53 @@ void chang_uart_baudrate(void)
 static void led_write_handler(ble_lbs_t * p_lbs, uint8_t led_state)
 {
 	switch(led_state) {
-		case 0x01:
-			nrf_gpio_pin_write(MOTOR_PIN2, 1);  //打开电机
+		case 0x00:                             //电机正转
+			nrf_gpio_pin_write(MOTOR_PIN1, 1);
+			nrf_gpio_pin_write(MOTOR_PIN2, 0);
 			break;
-		case 0x02:
-			nrf_gpio_pin_write(MOTOR_PIN2, 0);  //关机电机
+		case 0x01:                             //电机反转
+			nrf_gpio_pin_write(MOTOR_PIN1, 0);
+			nrf_gpio_pin_write(MOTOR_PIN2, 1);
 			break;
-		case 0x03:
-			nrf_gpio_pin_write(BUZZ_PIN, 1);   //打开蜂蜜器
+		case 0x02:														 //电机停止
+			nrf_gpio_pin_write(MOTOR_PIN1, 0);
+			nrf_gpio_pin_write(MOTOR_PIN2, 0); 
 			break;
-		case 0x04:
-			nrf_gpio_pin_write(BUZZ_PIN, 0);   //关闭蜂蜜器
+		case 0x03:															//打开蜂蜜器
+			nrf_gpio_pin_write(BUZZ_PIN, 1);   
 			break;
-		case 0x05:
-			nrf_gpio_pin_write(GPS_PIN, 1);     //打开GPS
+		case 0x04:															//关闭蜂蜜器
+			nrf_gpio_pin_write(BUZZ_PIN, 0);   
 			break;
-		case 0x06:
-			nrf_gpio_pin_write(GPS_PIN, 0);     //关闭GPS
+		case 0x05:															//打开GPS
+			nrf_gpio_pin_write(GPS_PIN, 1);     
 			break;
-		case 0x07:
-			nrf_gpio_pin_write(BB_EN_PIN, 0);   //打开3G
+		case 0x06:															//关闭GPS
+			nrf_gpio_pin_write(GPS_PIN, 0);     
 			break;
-		case 0x08:
-			nrf_gpio_pin_write(BB_EN_PIN, 1);   //关闭3G
+		case 0x07:															//打开3G
+			nrf_gpio_pin_write(BB_EN_PIN, 0);   
 			break;
-		case 0x09:
-			//AT_Test();													//AT命令测试 
+		case 0x08:															//关闭3G
+			nrf_gpio_pin_write(BB_EN_PIN, 1);   
 			break;
-		case 0x10:	
-			chang_uart_baudrate(); //更改波特率为9600
+		case 0x09:															//AT命令测试 
+			//AT_Test();												
 			break;
-		case 0x11:
+		case 0x10:															//动态更改波特率为9600
+			chang_uart_baudrate(); 							
+			break;
+		case 0x11:															//打开 GPS UART 波特率为9600  同时打开IO13
 			nrf_gpio_pin_write(BB_EN_PIN, 0);
-			uart_init_gps();			  //打开UART 波特率为9600
+			uart_init_gps();			  						
 			break;
-		case 0x12:
+		case 0x12:															//打开3G uart 波特率为115200   同时打开IO13
 			nrf_gpio_pin_write(BB_EN_PIN, 0);
 			nrf_delay_ms(1000);
-			uart_init_3g();    	//打开UART 波特率为115200
+			uart_init_3g();    							
 			break;
-		case 0x13:
-			app_uart_close();         //关闭UART
+		case 0x13:														  //关闭UART   同时关闭IO13
+			app_uart_close();         							
 			nrf_gpio_pin_write(BB_EN_PIN, 1);
 			break;
 		case 0x14:
@@ -412,7 +417,7 @@ static void led_write_handler(ble_lbs_t * p_lbs, uint8_t led_state)
 			printf("at+creg?\r\n");
 			break;
 		case 0x16:
-			uart_enable(0);
+			
 			break;
 		default:
 			break;
@@ -899,34 +904,6 @@ uint8_t* get_uart_data(uint8_t* a)
 }
 
 
-static void uart_enable(uint8_t reg)
-{
-    // Configure UART0 pins.
-	if(reg == 1){
-    nrf_gpio_cfg_output(TX_PIN_NUMBER_GPS);
-    nrf_gpio_cfg_input(RX_PIN_NUMBER_GPS, NRF_GPIO_PIN_NOPULL);
-
-    NRF_UART0->PSELTXD       = TX_PIN_NUMBER_GPS;
-    NRF_UART0->PSELRXD       = RX_PIN_NUMBER_GPS;
-    NRF_UART0->BAUDRATE      = UART_BAUDRATE_BAUDRATE_Baud9600;
-
-    // Clean out possible events from earlier operations
-    NRF_UART0->EVENTS_RXDRDY = 0;
-    NRF_UART0->EVENTS_TXDRDY = 0;
-    NRF_UART0->EVENTS_ERROR  = 0;
-
-    // Activate UART.
-    NRF_UART0->ENABLE        = UART_ENABLE_ENABLE_Enabled;
-    NRF_UART0->INTENSET      = 0;
-    NRF_UART0->TASKS_STARTTX = 1;
-    NRF_UART0->TASKS_STARTRX = 1;
-	}else{
-    NRF_UART0->INTENSET      = 0;
-    NRF_UART0->TASKS_STOPTX = 1;
-    NRF_UART0->TASKS_STOPRX = 1;
-		NRF_UART0->ENABLE        = UART_ENABLE_ENABLE_Disabled;
-	}
-}
 static void uart_event_handle(app_uart_evt_t * p_event)
 {
 	static uint8_t data_array[256];
