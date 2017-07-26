@@ -145,7 +145,8 @@ static void advertising_start(void);
 static void	uart_init_gps(void);			
 static void	uart_init_3g(void);
 static void uart_enable(uint8_t reg);
-uint32_t bma2x2_init(void);
+int8_t sensor_type_auto_maching_init(void);
+int8_t open_sensor_monitor(uint8_t level);
 
 typedef uint8_t* (*CallBackFun)(uint8_t *);
 /**@brief Callback function for asserts in the SoftDevice.
@@ -767,8 +768,11 @@ static void peer_manager_init(bool erase_bonds)
  */
 static void bsp_event_handler(bsp_event_t event)
 {
-    uint32_t err_code;
-
+//    uint32_t err_code;
+		NRF_LOG_INFO(" button bsp_event_handler event = %0x\r\n",event);
+		ble_lbs_on_button_change(&m_lbs, event);
+		return;
+	#if 0
     switch (event)
     {
         case BSP_EVENT_SLEEP:
@@ -798,6 +802,7 @@ static void bsp_event_handler(bsp_event_t event)
         default:
             break;
     }
+		#endif
 }
 
 
@@ -851,7 +856,7 @@ static void buttons_leds_init(bool * p_erase_bonds)
     bsp_event_t startup_event;
 
     uint32_t err_code = bsp_init(BSP_INIT_LED | BSP_INIT_BUTTONS,
-                                 APP_TIMER_TICKS(100, APP_TIMER_PRESCALER),
+                                 APP_TIMER_TICKS(250, APP_TIMER_PRESCALER),
                                  bsp_event_handler);
 
     APP_ERROR_CHECK(err_code);
@@ -1024,6 +1029,7 @@ void gpio_init(void)
 
 /**@brief Function for application main entry.
  */
+
 int main(void)
 {
     uint32_t err_code;
@@ -1035,11 +1041,10 @@ int main(void)
     timers_init();
 		//uart_init();
 		gpio_init();
-		//uint32_t sensor_id = bma2x2_init();
-		//NRF_LOG_INFO("Sensor ID = %d\r\n",sensor_id);
-		//nrf_gpio_pin_write(BB_EN_PIN, 0);   //´ò¿ª3G
-		//uart_init_3g();
-	
+		if(1 == sensor_type_auto_maching_init()){
+			open_sensor_monitor(1);
+			NRF_LOG_INFO("Bma2x2 sucessed !!\r\n");
+		}
     buttons_leds_init(&erase_bonds);
     ble_stack_init();
     peer_manager_init(erase_bonds);
