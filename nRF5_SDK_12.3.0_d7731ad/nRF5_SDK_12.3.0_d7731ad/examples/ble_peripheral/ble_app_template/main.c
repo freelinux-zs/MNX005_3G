@@ -398,7 +398,8 @@ static void led_write_handler(ble_lbs_t * p_lbs, uint8_t led_state)
 			chang_uart_baudrate(); 							
 			break;
 		case 0x11:															//打开 GPS UART 波特率为9600  同时打开IO13
-			nrf_gpio_pin_write(BB_EN_PIN, 0);
+			//nrf_gpio_pin_write(BB_EN_PIN, 0);
+			nrf_gpio_pin_write(GPS_PIN, 1);
 			uart_init_gps();			  						
 			break;
 		case 0x12:															//打开3G uart 波特率为115200   同时打开IO13
@@ -409,6 +410,7 @@ static void led_write_handler(ble_lbs_t * p_lbs, uint8_t led_state)
 		case 0x13:														  //关闭UART   同时关闭IO13
 			app_uart_close();         							
 			nrf_gpio_pin_write(BB_EN_PIN, 1);
+			nrf_gpio_pin_write(GPS_PIN, 0);
 			break;
 		case 0x14:
 			printf("ati\r\n");
